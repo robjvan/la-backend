@@ -4,9 +4,9 @@ FROM node:20-alpine
 WORKDIR /usr/src/app
 
 COPY package*.json ./
-COPY ./secretAccountKey.json /usr/src/app
+COPY secretAccountKey.json ./
 
-RUN npm i
+RUN npm ci
 
 COPY . .
 
