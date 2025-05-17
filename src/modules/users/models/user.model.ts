@@ -1,5 +1,12 @@
-import { Column, DataType, Model, Table } from 'sequelize-typescript';
+import {
+  Column,
+  DataType,
+  ForeignKey,
+  Model,
+  Table,
+} from 'sequelize-typescript';
 import { UserModelSeedData, BuildUserModelSeedData } from '../seeds/user.seed';
+import { UserRoleModel } from './user-role.model';
 
 @Table
 export class UserModel extends Model<UserModel> {
@@ -16,11 +23,30 @@ export class UserModel extends Model<UserModel> {
   @Column(DataType.TEXT)
   password: string;
 
+  @Column(DataType.INTEGER)
   smsToken: number;
+
+  @Column(DataType.TEXT)
   emailToken: string;
+
+  @Column(DataType.BOOLEAN)
   emailConfirmed: boolean;
+
+  @Column(DataType.BOOLEAN)
   newsletter: boolean;
+
+  @ForeignKey(() => UserRoleModel)
+  @Column(DataType.INTEGER)
   roleId: number;
+
+  @Column(DataType.BOOLEAN)
+  active: boolean;
+
+  @Column(DataType.BOOLEAN)
+  haveReviewed: boolean;
+
+  @Column(DataType.DATE)
+  lastLogin?: Date;
 
   public static async seed() {
     const seedData: UserModelSeedData[] = await BuildUserModelSeedData();
