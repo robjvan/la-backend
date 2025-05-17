@@ -15,7 +15,6 @@ export class PlantsService {
   constructor(
     @Inject(PLANT_REPOSITORY)
     private readonly plantsRepo: typeof PlantModel,
-    // private readonly firebaseService: FirebaseStorageService,
   ) {}
 
   /** Logger instance scoped to PlantsService for tracking and recording service-level operations and errors. */
@@ -149,8 +148,8 @@ export class PlantsService {
       throw new NotFoundException(`Plant with id ${id} not found`);
     }
 
-    const updatedImageUrls = [...plant.imageUrls, imageUrl];
-    plant.imageUrls = updatedImageUrls;
+    // const updatedImageUrls = [...plant.imageUrls, imageUrl];
+    // plant.imageUrls = updatedImageUrls;
     return await plant.save();
   }
 }
