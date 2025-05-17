@@ -8,7 +8,7 @@ import { CountryModel } from '../locations/models/country.model';
 import { UserModel } from '../users/models/user.model';
 import { UserLoginRecordModel } from '../auth/models/user-login-record.model';
 import { UserPlatformModel } from '../auth/models/user-platform.model';
-import { UserProfileModel } from '../users/models/user-profile.model';
+import { UserProfileModel } from '../user-profiles/models/user-profile.model';
 import { UserRoleModel } from '../users/models/user-role.model';
 import { UserSubscriptionModel } from '../subscriptions/models/user-subscription.model';
 import { PlantModel } from '../plants/models/plant.model';
