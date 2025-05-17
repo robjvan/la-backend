@@ -10,14 +10,12 @@ import { AdminModule } from './modules/admin/admin.module';
 import { UsersModule } from './modules/users/users.module';
 import { DatabaseModule } from './modules/database/database.module';
 import { UserProfilesModule } from './modules/user-profiles/user-profiles.module';
-// import { FirebaseStorageModule } from './modules/firebase-storage/firebase-storage.module';
 
 @Module({
   imports: [
     AdminModule,
     AuthModule,
     DatabaseModule,
-    // FirebaseStorageModule,
     LocationsModule,
     MailModule,
     PaymentsModule,

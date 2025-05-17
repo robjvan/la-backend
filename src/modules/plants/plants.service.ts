@@ -9,14 +9,13 @@ import {
 import { PLANT_REPOSITORY } from 'src/constants';
 import { PlantModel } from './models/plant.model';
 import { NewPlantDto } from './dto/new-plant.dto';
-import { FirebaseStorageService } from '../firebase-storage/firebase-storage.service';
 
 @Injectable()
 export class PlantsService {
   constructor(
     @Inject(PLANT_REPOSITORY)
     private readonly plantsRepo: typeof PlantModel,
-    private readonly firebaseService: FirebaseStorageService,
+    // private readonly firebaseService: FirebaseStorageService,
   ) {}
 
   /** Logger instance scoped to PlantsService for tracking and recording service-level operations and errors. */
@@ -141,7 +140,7 @@ export class PlantsService {
     // console.log(typeof file);
     // Save image to firebase bucket and fetch image url
     // const imageUrl = '';
-    const imageUrl = await this.firebaseService.uploadImage(file, id);
+    // const imageUrl = await this.firebaseService.uploadImage(file, id);
 
     // Attach imageUrl to plant record
     const plant = await this.plantsRepo.findByPk(id);
