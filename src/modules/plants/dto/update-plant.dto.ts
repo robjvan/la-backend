@@ -1,1 +1,3 @@
-export class UpdatePlantDto {}
+export class UpdatePlantDto {
+  // TODO(RV): Add fields
+}

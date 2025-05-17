@@ -8,15 +8,15 @@ export const BuildPlantModelSeedData = async (): Promise<
   PlantModelSeedData[]
 > => {
   return [
-    {
-      plant: {
-        name: 'canada',
-      },
-    },
-    {
-      plant: {
-        name: 'united kingdom',
-      },
-    },
+    // {
+    //   plant: {
+    //     name: '',
+    //   },
+    // },
+    // {
+    //   plant: {
+    //     name: '',
+    //   },
+    // },
   ];
 };
