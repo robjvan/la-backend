@@ -8,7 +8,6 @@ export const BuildUserPlatformModelSeedData = async (): Promise<
   UserPlatformModelSeedData[]
 > => {
   return [
-    // Add admin user
     {
       userPlatform: {
         name: 'web',
