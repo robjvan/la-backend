@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
 import { LocationsService } from './locations.service';
-import { LocationsController } from './locations.controller';
+import { locationsProviders } from './locations.providers';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
-  controllers: [LocationsController],
-  providers: [LocationsService],
+  imports: [HttpModule],
+  providers: [LocationsService, ...locationsProviders],
+  exports: [LocationsService],
 })
 export class LocationsModule {}
