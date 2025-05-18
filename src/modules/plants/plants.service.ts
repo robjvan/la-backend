@@ -30,7 +30,7 @@ export class PlantsService {
     throw new InternalServerErrorException(error, errorMsg);
   }
 
-  public async fetchAll() {
+  public async fetchAllPlants() {
     try {
       return await this.plantsRepo.findAll();
     } catch (err: any) {
@@ -136,7 +136,7 @@ export class PlantsService {
    * @returns The URL of the uploaded image.
    */
   public async addPhotoByPlantId(id: number, file: Express.Multer.File) {
-    // console.log(typeof file);
+    console.log(typeof file);
     // Save image to firebase bucket and fetch image url
     // const imageUrl = '';
     // const imageUrl = await this.firebaseService.uploadImage(file, id);

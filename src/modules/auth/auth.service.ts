@@ -180,4 +180,12 @@ export class AuthService {
       );
     }
   }
+
+  public async findAllLoginRecords(): Promise<UserLoginRecordModel[]> {
+    try {
+      return await this.userLoginRepository.findAll();
+    } catch (err: any) {
+      this.handleError(`Failed to fetch user login records`, err.message);
+    }
+  }
 }
