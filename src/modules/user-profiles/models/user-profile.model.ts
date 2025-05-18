@@ -10,6 +10,8 @@ import {
   BuildUserProfileModelSeedData,
   UserProfileModelSeedData,
 } from '../seeds/user-profile.seed';
+import { CountryModel } from 'src/modules/locations/models/country.model';
+import { CityModel } from 'src/modules/locations/models/city.model';
 
 @Table
 export class UserProfileModel extends Model<UserProfileModel> {
@@ -30,12 +32,14 @@ export class UserProfileModel extends Model<UserProfileModel> {
   @Column(DataType.TEXT)
   lastName?: string;
 
+  @ForeignKey(() => CityModel)
   @Column(DataType.INTEGER)
   cityId?: number;
 
   @Column(DataType.TEXT)
   growingZone?: string;
 
+  @ForeignKey(() => CountryModel)
   @Column(DataType.INTEGER)
   countryId?: number;
 
