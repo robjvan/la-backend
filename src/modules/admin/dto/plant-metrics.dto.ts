@@ -6,4 +6,10 @@ export class PlantMetricsDto {
   toBeWateredToday: number;
   mostWateredSpecies: string;
   wateringFrequency: WateringMetricsDto;
+  fertilizerFrequency: WateringMetricsDto;
+  mostFertilizedSpecies: string;
+  plantsAddedToday: number;
+  plantsAdded7Days: number;
+  plantsAdded30Days: number;
+  plantsAdded90Days: number;
 }
