@@ -16,8 +16,8 @@ export const BuildCountryModelSeedData = async (): Promise<
     },
     {
       country: {
-        name: 'united kingdom',
-        isoCode: 'uk',
+        name: 'usa',
+        isoCode: 'us',
       },
     },
   ];
