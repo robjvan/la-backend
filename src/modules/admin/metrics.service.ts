@@ -10,12 +10,11 @@ import { UserMetricsDto } from './dto/user-metrics.dto';
 import { WateringMetricsDto } from './dto/watering-metrics.dto';
 import { PlantsService } from '../plants/plants.service';
 import { UsersService } from '../users/users.service';
-import { Inject, Logger, InternalServerErrorException } from '@nestjs/common';
-import {
-  USER_LOGIN_RECORD_REPOSITORY,
-  USER_PROFILE_REPOSITORY,
-} from 'src/constants';
+import { Logger, InternalServerErrorException } from '@nestjs/common';
 import { MetricsDto } from './dto/metrics.dto';
+import { UserProfilesService } from '../user-profiles/user-profiles.service';
+import { AuthService } from '../auth/auth.service';
+import { GeographicalMetricsDto } from './dto/geographical-metrics.dto';
 import { UserProfileModel } from '../user-profiles/models/user-profile.model';
 
 /**
@@ -23,12 +22,12 @@ import { UserProfileModel } from '../user-profiles/models/user-profile.model';
  */
 export class MetricsService {
   constructor(
-    @Inject(USER_LOGIN_RECORD_REPOSITORY)
-    private readonly userLoginRepo: typeof UserLoginRecordModel,
-    @Inject(USER_PROFILE_REPOSITORY)
-    private readonly userProfilesRepo: typeof UserProfileModel,
+    // @Inject(USER_LOGIN_RECORD_REPOSITORY)
+    // private readonly userLoginRepo: typeof UserLoginRecordModel,
     private readonly usersService: UsersService,
+    private readonly userProfilesServices: UserProfilesService,
     private readonly plantService: PlantsService,
+    private readonly authService: AuthService,
   ) {}
 
   /** Logger instance scoped to MetricsService for tracking and recording service-level operations and errors. */
@@ -130,7 +129,7 @@ export class MetricsService {
    * @param {PlantModel[]} plantRecords - Array of plant records.
    * @returns {PlantMetricsDto} Plant metrics.
    */
-  private getPlantMetrics(plantRecords: PlantModel[]): PlantMetricsDto {
+  private calculatePlantMetrics(plantRecords: PlantModel[]): PlantMetricsDto {
     return {
       totalPlants: plantRecords.length,
       livePlants: plantRecords.filter((elem) => !elem.archived).length,
@@ -138,6 +137,12 @@ export class MetricsService {
       mostWateredSpecies: this.calculateMostWateredSpecies(plantRecords),
       wateringFrequency: this.calculateWateringFrequency(plantRecords),
     };
+  }
+
+  private calculateWateringMetrics(plantRecords: PlantModel[]) {
+    console.log(plantRecords);
+    // TODO(RV): Add logic
+    return { minFrequency: 0, avgFrequency: 0, maxFrequency: 0 };
   }
 
   // # User login metrics
@@ -323,13 +328,24 @@ export class MetricsService {
     };
   }
 
-  private getWateringMetrics(plantRecords: PlantModel[]) {
-    console.log(plantRecords);
-    return { minFrequency: -1, avgFrequency: -1, maxFrequency: -1 };
-  }
-  private getGeographicalMetrics(userRecords) {
+  private calculateGeographicalMetrics(
+    userRecords: UserProfileModel[],
+  ): GeographicalMetricsDto {
     console.log(userRecords);
-    return {};
+    // TODO(RV): Add logic
+    return {
+      usersInCanada: 0,
+      usersInUSA: 0,
+      usersInOther: 0,
+      topCountryByUsers: 0,
+      topCountryNumUsers: 0,
+      topCityByUsers: 0,
+      topCityNumUsers: 0,
+      topCountryByLogins: 0,
+      topCountryNumLogins: 0,
+      topCityByLogins: 0,
+      topCityNumLogins: 0,
+    };
   }
 
   /**
@@ -341,9 +357,9 @@ export class MetricsService {
       const [userRecords, userLoginRecords, plantRecords, profileRecords] =
         await Promise.all([
           await this.usersService.fetchAllUsers(),
-          await this.userLoginRepo.findAll(),
-          await this.plantService.fetchAll(),
-          await this.userProfilesRepo.findAll(),
+          await this.authService.findAllLoginRecords(),
+          await this.plantService.fetchAllPlants(),
+          await this.userProfilesServices.fetchAllProfiles(),
         ]);
 
       return {
@@ -351,9 +367,9 @@ export class MetricsService {
         userLoginMetrics: this.calculateUserLoginMetrics(userLoginRecords),
         newUserMetrics: this.calculateNewUserMetrics(userRecords),
         userGrowthMetrics: this.calculateUserGrowthMetrics(userRecords),
-        plantMetrics: this.getPlantMetrics(plantRecords),
-        wateringMetrics: this.getWateringMetrics(plantRecords),
-        geographicalMetrics: this.getGeographicalMetrics(profileRecords),
+        plantMetrics: this.calculatePlantMetrics(plantRecords),
+        wateringMetrics: this.calculateWateringMetrics(plantRecords),
+        geographicalMetrics: this.calculateGeographicalMetrics(profileRecords),
       };
     } catch (err: any) {
       this.handleError(`Failed to process user metrics`, err.message);
