@@ -12,6 +12,8 @@ import { UserProfileModel } from '../user-profiles/models/user-profile.model';
 import { UserRoleModel } from '../users/models/user-role.model';
 import { UserSubscriptionModel } from '../subscriptions/models/user-subscription.model';
 import { PlantModel } from '../plants/models/plant.model';
+import { WateringRecordModel } from '../plants/models/watering-record.model';
+import { FertilizerRecordModel } from '../plants/models/fertilizer-record.model';
 
 dotenv.config();
 
@@ -44,6 +46,7 @@ export const databaseProviders = [
         //! Add db models here
         CityModel,
         CountryModel,
+        FertilizerRecordModel,
         PlantModel,
         UserModel,
         UserLoginRecordModel,
@@ -51,6 +54,7 @@ export const databaseProviders = [
         UserProfileModel,
         UserRoleModel,
         UserSubscriptionModel,
+        WateringRecordModel,
       ]);
 
       // sequelize.addModels([__dirname + '/**/*.model.ts']);
@@ -89,6 +93,8 @@ export const databaseProviders = [
           // Seed sample recipe data
           logger.verbose('Seeding sample plant data...');
           await safeSeed('Plant', PlantModel.seed);
+          await safeSeed('Watering records', WateringRecordModel.seed);
+          await safeSeed('Fertilizer records', FertilizerRecordModel.seed);
 
           // Seed sample user data
           logger.verbose('Seeding sample user data...');
