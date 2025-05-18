@@ -3,12 +3,12 @@ export class GeographicalMetricsDto {
   usersInUSA: number;
   usersInOther: number;
 
-  topCountryByUsers: number;
+  topCountryByUsers: '';
   topCountryNumUsers: number;
-  topCityByUsers: number;
+  topCityByUsers: '';
   topCityNumUsers: number;
-  topCountryByLogins: number;
+  topCountryByLogins: '';
   topCountryNumLogins: number;
-  topCityByLogins: number;
+  topCityByLogins: '';
   topCityNumLogins: number;
 }
