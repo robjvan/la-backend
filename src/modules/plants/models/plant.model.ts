@@ -71,7 +71,7 @@ export class PlantModel extends Model<PlantModel> {
   })
   species?: string; // (Optional) ID of the common or scientific name.
 
-  @Column({ type: DataType.INTEGER, allowNull: true })
+  @Column({ type: DataType.TEXT, allowNull: true })
   @ApiProperty({
     name: 'location',
     required: false,
@@ -166,6 +166,15 @@ export class PlantModel extends Model<PlantModel> {
   })
   lastFertilizedAt?: Date; // Last fertilized timestamp.
 
+  @Column({ type: DataType.BOOLEAN, allowNull: false, defaultValue: false })
+  @ApiProperty({
+    name: 'fertilizerReminderEnabled',
+    required: true,
+    description: 'Whether to receive fertilizer reminders for this plant.',
+    example: true,
+  })
+  fertilizerReminderEnabled: boolean; // Whether to receive watering reminders for this plant.
+
   @Column({
     type: DataType.ARRAY(DataType.TEXT),
     allowNull: false,
@@ -179,17 +188,32 @@ export class PlantModel extends Model<PlantModel> {
   })
   tags: string[]; // User-defined tags like “Succulent”, “Indoor”, “Gift”.
 
+  @Column({ type: DataType.FLOAT, allowNull: true })
+  @ApiProperty({
+    name: 'tags',
+    required: false,
+    description: 'How much water to give each time, in mL',
+    example: 100,
+  })
+  waterAmount?: number;
+
   @Column({ type: DataType.BOOLEAN, allowNull: false, defaultValue: false })
+  @ApiProperty({
+    name: 'archived',
+    required: true,
+    description: 'Whether the plant is archived or not (e.g., if it died)',
+    example: false,
+  })
   archived: boolean; // Marks plant as no longer active (e.g., if it died).
 
   public static async seed() {
     const seedData: PlantModelSeedData[] = await BuildPlantModelSeedData();
 
-    const plantModels: PlantModel[] = [];
+    const plants: PlantModel[] = [];
     for (const data of seedData) {
       const plant: PlantModel = await PlantModel.create(data.plant);
-      plantModels.push(plant);
+      plants.push(plant);
     }
-    return plantModels[0];
+    return plants[0];
   }
 }
