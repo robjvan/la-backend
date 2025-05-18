@@ -8,26 +8,35 @@ import { UserGrowthMetricsDto } from './dto/user-growth-metrics.dto';
 import { UserLoginMetricsDto } from './dto/user-login-metrics.dto';
 import { UserMetricsDto } from './dto/user-metrics.dto';
 import { WateringMetricsDto } from './dto/watering-metrics.dto';
-import { PlantsService } from '../plants/plants.service';
-import { UsersService } from '../users/users.service';
 import { Logger, InternalServerErrorException } from '@nestjs/common';
 import { MetricsDto } from './dto/metrics.dto';
-import { UserProfilesService } from '../user-profiles/user-profiles.service';
-import { AuthService } from '../auth/auth.service';
 import { GeographicalMetricsDto } from './dto/geographical-metrics.dto';
 import { UserProfileModel } from '../user-profiles/models/user-profile.model';
+import {
+  PLANT_REPOSITORY,
+  USER_LOGIN_RECORD_REPOSITORY,
+  USER_PROFILE_REPOSITORY,
+  USER_REPOSITORY,
+} from 'src/constants';
+import { Inject } from '@nestjs/common';
 
 /**
  * Service class for generating various metrics.
  */
 export class MetricsService {
   constructor(
-    // @Inject(USER_LOGIN_RECORD_REPOSITORY)
-    // private readonly userLoginRepo: typeof UserLoginRecordModel,
-    private readonly usersService: UsersService,
-    private readonly userProfilesServices: UserProfilesService,
-    private readonly plantService: PlantsService,
-    private readonly authService: AuthService,
+    @Inject(USER_LOGIN_RECORD_REPOSITORY)
+    private readonly userLoginRepo: typeof UserLoginRecordModel,
+    @Inject(USER_REPOSITORY)
+    private readonly usersRepo: typeof UserModel,
+    @Inject(USER_PROFILE_REPOSITORY)
+    private readonly userProfilesRepo: typeof UserProfileModel,
+    @Inject(PLANT_REPOSITORY)
+    private readonly plantsRepo: typeof PlantModel,
+    // private readonly usersService: UsersService,
+    // private readonly userProfilesServices: UserProfilesService,
+    // private readonly plantService: PlantsService,
+    // private readonly authService: AuthService,
   ) {}
 
   /** Logger instance scoped to MetricsService for tracking and recording service-level operations and errors. */
@@ -337,13 +346,13 @@ export class MetricsService {
       usersInCanada: 0,
       usersInUSA: 0,
       usersInOther: 0,
-      topCountryByUsers: 0,
+      topCountryByUsers: '',
       topCountryNumUsers: 0,
-      topCityByUsers: 0,
+      topCityByUsers: '',
       topCityNumUsers: 0,
-      topCountryByLogins: 0,
+      topCountryByLogins: '',
       topCountryNumLogins: 0,
-      topCityByLogins: 0,
+      topCityByLogins: '',
       topCityNumLogins: 0,
     };
   }
@@ -356,10 +365,14 @@ export class MetricsService {
     try {
       const [userRecords, userLoginRecords, plantRecords, profileRecords] =
         await Promise.all([
-          await this.usersService.fetchAllUsers(),
-          await this.authService.findAllLoginRecords(),
-          await this.plantService.fetchAllPlants(),
-          await this.userProfilesServices.fetchAllProfiles(),
+          this.usersRepo.findAll(),
+          this.userLoginRepo.findAll(),
+          this.plantsRepo.findAll(),
+          this.userProfilesRepo.findAll(),
+          // this.usersService.fetchAllUsers(),
+          // this.authService.findAllLoginRecords(),
+          // this.plantService.fetchAllPlants(),
+          // this.userProfilesServices.fetchAllProfiles(),
         ]);
 
       return {
