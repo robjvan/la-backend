@@ -2,15 +2,21 @@ import { Module } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { AdminController } from './admin.controller';
 import { adminProviders } from './admin.providers';
-// import { UsersModule } from '../users/users.module';
-// import { PlantsModule } from '../plants/plants.module';
 import { MetricsService } from './metrics.service';
-// import { UserProfilesModule } from '../user-profiles/user-profiles.module';
-// import { AuthModule } from '../auth/auth.module';
+import { UserMetricsService } from './user-metrics.service';
+import { PlantMetricsService } from './plant-metrics.service';
+import { GeographicalMetricsService } from './geographics-metrics.service';
 
 @Module({
   imports: [],
   controllers: [AdminController],
-  providers: [AdminService, MetricsService, ...adminProviders],
+  providers: [
+    AdminService,
+    MetricsService,
+    ...adminProviders,
+    UserMetricsService,
+    PlantMetricsService,
+    GeographicalMetricsService,
+  ],
 })
 export class AdminModule {}
