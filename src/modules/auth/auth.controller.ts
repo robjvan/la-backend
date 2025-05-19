@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Req, Param } from '@nestjs/common';
+import { Body, Controller, Post, Req, Param, Patch } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { NewUserDto } from './dto/new-user.dto';
 import { UsersService } from '../users/users.service';
@@ -10,6 +10,7 @@ import {
   ApiParam,
   ApiResponse,
 } from '@nestjs/swagger';
+import { NewPasswordDto } from './dto/new-password.dto';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -40,5 +41,20 @@ export class AuthController {
   @ApiParam({ name: 'token', description: 'Email token', type: 'string' })
   public confirmEmailAddress(@Param('token') token: string) {
     return this.authService.confirmUserEmailByToken(token);
+  }
+
+  @Post('/forgot-password/:username')
+  @ApiOperation({ summary: 'Start the forgot password workflow' })
+  public startForgotPassWorkflow(@Param('username') username: string) {
+    return this.authService.startForgotPassWorkflow(username);
+  }
+
+  @Patch('/forgot-password/:username')
+  @ApiOperation({ summary: 'Submit token and new password' })
+  public submitNewPassword(
+    @Param('username') username: string,
+    @Body() data: NewPasswordDto,
+  ) {
+    return this.authService.submitNewPassword(username, data);
   }
 }

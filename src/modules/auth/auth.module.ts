@@ -7,6 +7,7 @@ import { UsersModule } from '../users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { SubscriptionsModule } from '../subscriptions/subscriptions.module';
 import * as dotenv from 'dotenv';
+import { MailModule } from '../mail/mail.module';
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ dotenv.config();
     LocationsModule,
     UsersModule,
     SubscriptionsModule,
+    MailModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, ...authProviders],

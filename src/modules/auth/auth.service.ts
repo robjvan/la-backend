@@ -3,17 +3,21 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { USER_LOGIN_RECORD_REPOSITORY } from 'src/constants';
 import { UserLoginRecordModel } from './models/user-login-record.model';
 import { LocationsService } from '../locations/locations.service';
 import { UsersService } from '../users/users.service';
-import { SubscriptionsService } from '../subscriptions/subscriptions.service';
+// import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 import { JwtService } from '@nestjs/jwt';
 import { UserModel } from '../users/models/user.model';
 import * as bcrypt from 'bcrypt';
 import { UserLoginDto } from './dto/user-login.dto';
+import { v4 as uuidv4 } from 'uuid';
+import { MailService } from '../mail/mail.service';
+import { NewPasswordDto } from './dto/new-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -23,7 +27,8 @@ export class AuthService {
     private readonly locationService: LocationsService,
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-    private readonly subscriptionService: SubscriptionsService,
+    // private readonly subscriptionService: SubscriptionsService,
+    private readonly mailService: MailService,
     // private readonly profileService: ProfileService,
   ) {}
 
@@ -186,6 +191,63 @@ export class AuthService {
       return await this.userLoginRepository.findAll();
     } catch (err: any) {
       this.handleError(`Failed to fetch user login records`, err.message);
+    }
+  }
+
+  // # Forgot Password workflow:
+  // 1. User submits their email as a "forgot password" request from Flutter app, a dialog tells them to check email.
+  // 2. Email is sent to the user with a link containing new emailToken.
+  // 3. User submits this token using the Forgot Password page along with a new password.
+  // 4. If token is OK, new password is saved and user can login.
+
+  public async startForgotPassWorkflow(username: string) {
+    try {
+      // Attempt to fetch user record
+      const userRecord = await this.usersService.fetchUserByUsername(username);
+
+      if (!userRecord) {
+        throw new NotFoundException(
+          `User record with email ${username} not found.`,
+        );
+      }
+
+      // Generate new email token for user
+      const emailToken = uuidv4();
+
+      // Save new token to user record
+      await userRecord.update({ emailToken });
+
+      // Send email message with token to the user
+      await this.mailService.sendForgotPasswordEmail(username, emailToken);
+    } catch (err: any) {
+      this.handleError(
+        `Failed to start 'forgot password' workflow for username ${username}`,
+        err.message,
+      );
+    }
+  }
+
+  public async submitNewPassword(username: string, data: NewPasswordDto) {
+    try {
+      const { token, password } = data;
+
+      // Fetch user record
+      const userRecord = await this.usersService.fetchUserByUsername(username);
+
+      if (!userRecord) {
+        throw new NotFoundException();
+      }
+
+      if (token === userRecord.emailToken) {
+        await this.usersService.updateUserById(userRecord.id, { password });
+      } else {
+        throw new UnauthorizedException(`Email token does not match`);
+      }
+    } catch (err: any) {
+      this.handleError(
+        `Failed to update password for ${username}`,
+        err.message,
+      );
     }
   }
 }
