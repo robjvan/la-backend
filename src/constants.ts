@@ -25,12 +25,3 @@ export const FORGOT_PASS_TEMPLATE_KEY = '';
 export const PASSWORD_UPDATED_TEMPLATE_KEY = '';
 export const ACCOUNT_CLOSED_TEMPLATE_KEY = '';
 export const NEWSLETTER_TEMPLATE_KEY = '';
-
-// Email configuration constants
-export const MAIL_FROM_ADDRESS = 'support@robjvan.ca';
-export const MAIL_FROM_NAME = 'App Support';
-export const MAIL_REPLY_TO_ADDRESS = 'support@robjvan.ca';
-export const MAIL_REPLY_TO_NAME = 'App Support';
-export const MAIL_RELAY_URL = 'api.zeptomail.com/';
-export const MAIL_RELAY_TOKEN =
-  'Zoho-enczapikey wSsVR61xrxTxW61+zjykdO8xml0EBV+kFhkuiVuiuCWuS/nB/Mdqw0PJAQb1SPJMETVpQTZA97Ipm0sFgWUP3Igry1gDCCiF9mqRe1U4J3x17qnvhDzJX29ZlRGPL4gIxAhsmmNnFcoi+g==';
