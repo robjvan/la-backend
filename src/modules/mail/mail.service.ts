@@ -4,15 +4,17 @@ import {
   Logger,
 } from '@nestjs/common';
 import { SendMailClient } from 'zeptomail';
-import {
-  FORGOT_PASS_TEMPLATE_KEY,
-  MAIL_FROM_ADDRESS,
-  MAIL_FROM_NAME,
-  MAIL_RELAY_TOKEN,
-  MAIL_RELAY_URL,
-  MAIL_REPLY_TO_ADDRESS,
-  MAIL_REPLY_TO_NAME,
-} from 'src/constants';
+import { FORGOT_PASS_TEMPLATE_KEY } from 'src/constants';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
+
+const MAIL_RELAY_URL = process.env.MAIL_RELAY_URL;
+const MAIL_RELAY_TOKEN = process.env.MAIL_RELAY_TOKEN;
+const MAIL_FROM_ADDRESS = process.env.MAIL_FROM_ADDRESS;
+const MAIL_FROM_NAME = process.env.MAIL_FROM_NAME;
+const MAIL_REPLY_TO_ADDRESS = process.env.MAIL_REPLY_TO_ADDRESS;
+const MAIL_REPLY_TO_NAME = process.env.MAIL_REPLY_TO_NAME;
 
 const client = new SendMailClient({ MAIL_RELAY_URL, MAIL_RELAY_TOKEN });
 
