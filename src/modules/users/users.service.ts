@@ -162,7 +162,10 @@ export class UsersService {
 
       if (newUserRecord && newProfileRecord && newSubscriptionRecord) {
         // Send "confirm email" message
-        await this.mailService.sendConfirmEmailMessage(data.username);
+        await this.mailService.sendConfirmEmailMessage(
+          data.username,
+          newUserRecord.emailToken,
+        );
 
         // Return 201 status
         return HttpStatus.CREATED;
