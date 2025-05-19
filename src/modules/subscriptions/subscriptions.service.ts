@@ -13,10 +13,6 @@ import { USER_SUBSCRIPTION_REPOSITORY } from 'src/constants';
  */
 @Injectable()
 export class SubscriptionsService {
-  /**
-   * Constructor for the SubscriptionsService, injecting the UserSubscriptionRepository.
-   * @param userSubscriptionRepo - An instance of UserSubscriptionModel representing the repository for user subscriptions.
-   */
   constructor(
     @Inject(USER_SUBSCRIPTION_REPOSITORY)
     private readonly userSubscriptionRepo: typeof UserSubscriptionModel,
@@ -73,6 +69,19 @@ export class SubscriptionsService {
       return result;
     } catch (err: any) {
       this.handleError(`Failed to fetch user subscription record`, err.message);
+    }
+  }
+
+  public async changeTierByUserId(userId: number, newTier: number) {
+    try {
+      console.log(userId, newTier);
+      // TODO(RV): Add logic
+      return null;
+    } catch (err: any) {
+      this.handleError(
+        `Failed to update subscription tier for user id ${userId}`,
+        err.message,
+      );
     }
   }
 }
