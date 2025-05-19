@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiOperation, ApiParam, ApiBody, ApiTags } from '@nestjs/swagger';
@@ -29,7 +29,7 @@ export class UsersController {
     return this.usersService.updateUserById(id, data);
   }
 
-  @Patch(':id')
+  @Delete(':id')
   @ApiOperation({ summary: 'Deactivate user by ID' })
   @ApiParam({ name: 'id', description: 'User ID', type: 'number' })
   public deactivateUserById(@Param('id') id: number) {
