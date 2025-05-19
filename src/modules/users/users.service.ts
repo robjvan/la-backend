@@ -211,7 +211,14 @@ export class UsersService {
     try {
       const userRecord = await this.fetchUserById(id);
 
-      return await userRecord.update({ ...data });
+      if (data.password) {
+        return await userRecord.update({
+          ...data,
+          password: await bcrypt.hash(data.password, 10),
+        });
+      } else {
+        return await userRecord.update({ ...data });
+      }
     } catch (err: any) {
       this.handleError(
         `Failed to update user record with id ${id}`,
