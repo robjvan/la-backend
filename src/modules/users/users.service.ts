@@ -119,11 +119,11 @@ export class UsersService {
       });
 
       if (existingRecord) {
-        throw new InternalServerErrorException(`Username already in use`);
+        return HttpStatus.CONFLICT;
+        // throw new InternalServerErrorException(`Username already in use`);
       }
 
       let countryRecord: CountryModel;
-      // let newProfileRecord: UserProfileModel;
 
       // Try to determine the user's country based from the request IP
       try {
@@ -162,7 +162,7 @@ export class UsersService {
 
       if (newUserRecord && newProfileRecord && newSubscriptionRecord) {
         // Send "confirm email" message
-        // await this.mailService.sendConfirmEmailMessage(data.username);
+        await this.mailService.sendConfirmEmailMessage(data.username);
 
         // Return 201 status
         return HttpStatus.CREATED;
