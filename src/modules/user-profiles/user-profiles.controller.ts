@@ -22,10 +22,10 @@ export class UserProfilesController {
     return this.userProfilesService.fetchProfileById(id);
   }
 
-  @Patch(':id')
+  @Patch(':userId')
   @ApiOperation({ summary: 'Update user profile by ID' })
   @ApiParam({
-    name: 'id',
+    name: 'userId',
     description: 'ID of the user associated with the profile',
     required: true,
     type: 'number',
@@ -35,7 +35,7 @@ export class UserProfilesController {
     required: true,
     type: 'object',
   })
-  public updateProfileById(@Param('id') id: number, @Body() data: any) {
-    return this.userProfilesService.updateProfileById(id, data);
+  public updateProfileById(@Param('userId') userId: number, @Body() data: any) {
+    return this.userProfilesService.updateProfileById(userId, data);
   }
 }

@@ -94,21 +94,21 @@ export class UserProfilesService {
 
   /**
    * Updates a specific user profile record with the provided data.
-   * @param id - The ID of the user associated with the profile to be updated.
+   * @param userId - The ID of the user associated with the profile to be updated.
    * @param data - An object containing the new profile data.
    * @returns A UserProfileModel object representing the updated profile or throws an error if no record exists.
    */
   public async updateProfileById(
-    id: number,
+    userId: number,
     data: UpdateProfileDto,
   ): Promise<UserProfileModel> {
     try {
-      console.log(id, data);
+      console.log(userId, data);
       // TODO(RV): Add logic to update profile record
       return null;
     } catch (err: any) {
       this.handleError(
-        `Failed to update user record with id ${id}`,
+        `Failed to update user record with id ${userId}`,
         err.message,
       );
     }
