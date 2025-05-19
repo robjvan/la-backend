@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Delete,
   Get,
@@ -11,11 +12,22 @@ import {
 import { PlantsService } from './plants.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
+import { NewPlantDto } from './dto/new-plant.dto';
 
 @Controller('plants')
 @ApiTags('Plants')
 export class PlantsController {
   constructor(private readonly plantsService: PlantsService) {}
+
+  @Post('')
+  @ApiOperation({ summary: 'Create a new plant record' })
+  @ApiBody({
+    description: 'New plant data to be captured in the db',
+    type: NewPlantDto,
+  })
+  public addNewPlant(@Body() data: NewPlantDto) {
+    return this.plantsService.createNewPlantRecord(data);
+  }
 
   @Get('byuser/:userId')
   @ApiOperation({ summary: 'Fetch plants for a specific user' })
@@ -48,12 +60,12 @@ export class PlantsController {
   @Post(':id/upload-photo')
   @ApiOperation({ summary: 'Upload a photo for a specific plant' })
   @ApiParam({ name: 'id', description: 'Plant ID', type: 'number' })
-  @ApiBody({
-    type: 'object',
-    // properties: {
-    //   file: { type: 'string', format: 'binary' },
-    // },
-  })
+  // @ApiBody({
+  //   type: 'object',
+  //   // properties: {
+  //   //   file: { type: 'string', format: 'binary' },
+  //   // },
+  // })
   @UseInterceptors(FileInterceptor('file'))
   public addPhotoByPlantId(
     @Param('id') id: number,
