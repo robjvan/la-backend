@@ -11,7 +11,7 @@ export class UpdateUserDto extends PartialType(UserModel) {
   })
   @IsOptional()
   @IsString()
-  password: string;
+  password?: string;
 
   @ApiProperty({
     name: 'newsletter',
@@ -21,5 +21,5 @@ export class UpdateUserDto extends PartialType(UserModel) {
   })
   @IsOptional()
   @IsBoolean()
-  newsletter: boolean;
+  newsletter?: boolean;
 }
