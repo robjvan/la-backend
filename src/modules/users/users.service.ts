@@ -162,7 +162,7 @@ export class UsersService {
 
       if (newUserRecord && newProfileRecord && newSubscriptionRecord) {
         // Send "confirm email" message
-        await this.mailService.sendConfirmEmailMessage(
+        await this.mailService.sendWelcomeEmail(
           data.username,
           newUserRecord.emailToken,
         );
