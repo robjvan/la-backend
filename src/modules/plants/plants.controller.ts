@@ -7,15 +7,18 @@ import {
   Patch,
   Post,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { PlantsService } from './plants.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { NewPlantDto } from './dto/new-plant.dto';
+import { AuthGuard } from 'src/guards/auth.guard';
 
 @Controller('plants')
 @ApiTags('Plants')
+@UseGuards(AuthGuard)
 export class PlantsController {
   constructor(private readonly plantsService: PlantsService) {}
 

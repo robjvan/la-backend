@@ -1,12 +1,14 @@
-import { Body, Controller, Get, Param, Patch } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
 import { UserProfilesService } from './user-profiles.service';
 import { ApiTags, ApiOperation, ApiParam, ApiBody } from '@nestjs/swagger';
+import { AuthGuard } from 'src/guards/auth.guard';
 
 /**
  * The UserProfilesController handles all operations related to user profiles.
  */
 @Controller('user-profiles')
 @ApiTags('User Profiles')
+@UseGuards(AuthGuard)
 export class UserProfilesController {
   constructor(private readonly userProfilesService: UserProfilesService) {}
 
