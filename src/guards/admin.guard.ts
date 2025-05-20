@@ -31,7 +31,7 @@ export class AdminGuard implements CanActivate {
         secret: process.env.JWTKEY,
       });
 
-      console.log(payload);
+      // console.log(payload);
 
       // Fetch the user record
       const userRecord = await this.usersService.fetchUserByUsername(
