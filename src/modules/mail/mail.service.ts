@@ -9,14 +9,10 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 
-const MAIL_RELAY_URL = process.env.MAIL_RELAY_URL;
-const MAIL_RELAY_TOKEN = process.env.MAIL_RELAY_TOKEN;
-const MAIL_FROM_ADDRESS = process.env.MAIL_FROM_ADDRESS;
-const MAIL_FROM_NAME = process.env.MAIL_FROM_NAME;
-const MAIL_REPLY_TO_ADDRESS = process.env.MAIL_REPLY_TO_ADDRESS;
-const MAIL_REPLY_TO_NAME = process.env.MAIL_REPLY_TO_NAME;
-
-const client = new SendMailClient({ MAIL_RELAY_URL, MAIL_RELAY_TOKEN });
+const client = new SendMailClient({
+  url: process.env.MAIL_RELAY_URL,
+  token: process.env.MAIL_RELAY_TOKEN,
+});
 
 @Injectable()
 export class MailService {
@@ -60,15 +56,14 @@ export class MailService {
    * @returns {Promise<any>} A promise representing the result of the email sending process.
    */
   // async sendForgotPasswordEmail(email: string, token: string): Promise<any> {
-  async sendForgotPasswordEmail(email: string, token: string): Promise<any> {
+  sendForgotPasswordEmail(email: string, token: string): any {
     try {
       client
         .sendMailWithTemplate({
           template_key: FORGOT_PASS_TEMPLATE_KEY,
-          template_alias: "<template's alias>",
           from: {
-            address: MAIL_FROM_ADDRESS,
-            name: MAIL_FROM_NAME,
+            address: process.env.MAIL_FROM_ADDRESS,
+            name: process.env.MAIL_FROM_NAME,
           },
           to: [
             {
@@ -84,8 +79,8 @@ export class MailService {
           },
           reply_to: [
             {
-              address: MAIL_REPLY_TO_ADDRESS,
-              name: MAIL_REPLY_TO_NAME,
+              address: process.env.MAIL_REPLY_TO_ADDRESS,
+              name: process.env.MAIL_REPLY_TO_NAME,
             },
           ],
         })
