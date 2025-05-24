@@ -94,14 +94,14 @@ export class PlantModel extends Model<PlantModel> {
   })
   notes: string[]; // Optional user notes, e.g., “Getting brown tips” or “Repotted on May 1st.”
 
-  @Column({ type: DataType.INTEGER, allowNull: false })
+  @Column({ type: DataType.INTEGER, allowNull: true })
   @ApiProperty({
     name: 'waterIntervalDays',
     required: true,
     description: 'How often to water, in days. Used for reminders.',
     example: 7,
   })
-  waterIntervalDays: number; // How often to water, in days. Used for reminders.
+  waterIntervalDays?: number; // How often to water, in days. Used for reminders.
 
   @Column({ type: DataType.DATE, allowNull: true })
   @ApiProperty({
