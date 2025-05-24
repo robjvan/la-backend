@@ -85,9 +85,13 @@ export class PlantsService {
    */
   public async createNewPlantRecord(data: NewPlantDto) {
     try {
-      console.log(data);
-      // TODO(RV): Add logic
-      return null;
+      const result = await this.plantsRepo.create(data);
+
+      if (!result) {
+        throw new InternalServerErrorException();
+      }
+
+      return result;
     } catch (err: any) {
       this.handleError(`Failed to create new plant record`, err.message);
     }
