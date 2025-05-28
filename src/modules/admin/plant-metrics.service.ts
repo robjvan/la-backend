@@ -2,7 +2,7 @@ import { FertilizerRecordModel } from '../plants/models/fertilizer-record.model'
 import { PlantModel } from '../plants/models/plant.model';
 import { WateringRecordModel } from '../plants/models/watering-record.model';
 import { PlantMetricsDto } from './dto/plant-metrics.dto';
-import { WateringMetricsDto } from './dto/watering-metrics.dto';
+import { FrequencyDto } from './dto/watering-metrics.dto';
 import * as dayjs from 'dayjs';
 
 export class PlantMetricsService {
@@ -77,11 +77,11 @@ export class PlantMetricsService {
   /**
    * Calculates the watering frequency metrics.
    * @param {PlantModel[]} plantRecords - Array of plant records.
-   * @returns {WateringMetricsDto} Watering frequency metrics.
+   * @returns {FrequencyDto} Watering frequency metrics.
    */
   public calculateWateringFrequency(
     plantRecords: PlantModel[],
-  ): WateringMetricsDto {
+  ): FrequencyDto {
     const intervals: number[] = [];
 
     // Extract the watering interval days from each plant record
@@ -106,11 +106,11 @@ export class PlantMetricsService {
   /**
    * Calculates the fertilizer frequency metrics.
    * @param {PlantModel[]} plantRecords - Array of plant records.
-   * @returns {WateringMetricsDto} Fertilizer frequency metrics.
+   * @returns {FrequencyDto} Fertilizer frequency metrics.
    */
   public calculateFertilizerFrequency(
     plantRecords: PlantModel[],
-  ): WateringMetricsDto {
+  ): FrequencyDto {
     const intervals: number[] = [];
 
     // Extract the fertilizer interval days from each plant record
