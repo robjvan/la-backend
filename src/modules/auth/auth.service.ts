@@ -1,4 +1,5 @@
 import {
+  HttpStatus,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -218,7 +219,7 @@ export class AuthService {
    *
    * @param username - The user's username or email.
    */
-  public async startForgotPassWorkflow(username: string) {
+  public async startForgotPassWorkflow(username: string): Promise<HttpStatus> {
     try {
       // Attempt to fetch user record
       const userRecord = await this.usersService.fetchUserByUsername(username);
@@ -237,11 +238,14 @@ export class AuthService {
 
       // Send email message with token to the user
       await this.mailService.sendForgotPasswordEmail(username, emailToken);
+
+      return HttpStatus.OK;
     } catch (err: any) {
       this.handleError(
         `Failed to start 'forgot password' workflow for username ${username}`,
         err.message,
       );
+      return HttpStatus.INTERNAL_SERVER_ERROR;
     }
   }
 
@@ -252,7 +256,10 @@ export class AuthService {
    * @param data - Contains the reset token and new password.
    * @returns Success response on password update.
    */
-  public async submitNewPassword(username: string, data: NewPasswordDto) {
+  public async submitNewPassword(
+    username: string,
+    data: NewPasswordDto,
+  ): Promise<HttpStatus> {
     try {
       const { token, password } = data;
 
@@ -268,7 +275,7 @@ export class AuthService {
 
         this.mailService.sendPasswordUpdatedEmail(username);
 
-        return { success: true, message: 'Password updated successfully' };
+        return HttpStatus.OK;
       } else {
         throw new UnauthorizedException(`Email token does not match`);
       }
@@ -277,6 +284,7 @@ export class AuthService {
         `Failed to update password for ${username}`,
         err.message,
       );
+      return HttpStatus.INTERNAL_SERVER_ERROR;
     }
   }
 }
