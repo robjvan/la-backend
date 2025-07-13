@@ -28,8 +28,12 @@ export class PlantsController {
     description: 'New plant data to be captured in the db',
     type: NewPlantDto,
   })
-  public addNewPlant(@Body() data: NewPlantDto) {
-    return this.plantsService.createNewPlantRecord(data);
+  @UseInterceptors(FileInterceptor('image'))
+  public addNewPlant(
+    @Body() data: NewPlantDto,
+    @UploadedFile() image: Express.Multer.File,
+  ) {
+    return this.plantsService.createNewPlantRecord(data, image);
   }
 
   @Get('byuser/:userId')
