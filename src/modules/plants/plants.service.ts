@@ -9,12 +9,16 @@ import {
 import { PLANT_REPOSITORY } from 'src/constants';
 import { PlantModel } from './models/plant.model';
 import { NewPlantDto } from './dto/new-plant.dto';
+import { AppwriteService } from '../appwrite/appwrite.service';
+import { LoggingService } from '../logging/logging.service';
 
 @Injectable()
 export class PlantsService {
   constructor(
     @Inject(PLANT_REPOSITORY)
     private readonly plantsRepo: typeof PlantModel,
+    private readonly appwriteService: AppwriteService,
+    private readonly loggingService: LoggingService,
   ) {}
 
   /** Logger instance scoped to PlantsService for tracking and recording service-level operations and errors. */
@@ -25,9 +29,10 @@ export class PlantsService {
    * @param error - The error message to log.
    * @param errorMsg - The error details.
    */
-  private handleError(error: string, errorMsg: string) {
-    this.logger.error(error, errorMsg);
-    throw new InternalServerErrorException(error, errorMsg);
+  private handleError(error: string, message: string) {
+    this.logger.error(error, message);
+    this.loggingService.error(PlantsService.name, error, message);
+    throw new InternalServerErrorException(error, message);
   }
 
   public async fetchAllPlants() {
@@ -83,8 +88,21 @@ export class PlantsService {
    * @param data - The new plant data.
    * @returns A new plant record.
    */
-  public async createNewPlantRecord(data: NewPlantDto) {
+  public async createNewPlantRecord(
+    data: NewPlantDto,
+    image: Express.Multer.File,
+  ) {
     try {
+      // If user attached a photo, upload to appwrite bucket
+      if (image) {
+        // Attach returned url to plant record
+        try {
+          data.imageUrl = await this.appwriteService.uploadPhoto(image);
+        } catch {
+          // Do nothing, just continue with record creation
+        }
+      }
+
       const result = await this.plantsRepo.create(data);
 
       if (!result) {
@@ -133,27 +151,31 @@ export class PlantsService {
     }
   }
 
-  /**
-   * Adds a new image to a plant record and saves the updated record to the database.
-   * @param id - The ID of the plant.
-   * @param file - The image file to upload.
-   * @returns The URL of the uploaded image.
-   */
-  public async addPhotoByPlantId(id: number, file: Express.Multer.File) {
-    console.log(typeof file);
-    // Save image to firebase bucket and fetch image url
-    // const imageUrl = '';
-    // const imageUrl = await this.firebaseService.uploadImage(file, id);
+  // /**
+  //  * Adds a new image to a plant record and saves the updated record to the database.
+  //  * @param id - The ID of the plant.
+  //  * @param file - The image file to upload.
+  //  * @returns The URL of the uploaded image.
+  //  */
+  public async addPhotoByPlantId(id: number, image: Express.Multer.File) {
+    try {
+      const plant = await this.plantsRepo.findByPk(id);
 
-    // Attach imageUrl to plant record
-    const plant = await this.plantsRepo.findByPk(id);
+      if (!plant) {
+        throw new NotFoundException(`Plant with id ${id} not found`);
+      }
 
-    if (!plant) {
-      throw new NotFoundException(`Plant with id ${id} not found`);
+      // Upload file to appwrite, save returned url to plant record
+      const imageUrl = await this.appwriteService.uploadPhoto(image);
+
+      plant.imageUrls = [...plant.imageUrls, imageUrl];
+      // plant.imageUrls = updatedImageUrls;
+      return await plant.save();
+    } catch (e) {
+      this.handleError(
+        `Failed to add photo to plant record with id ${id}`,
+        e.message,
+      );
     }
-
-    // const updatedImageUrls = [...plant.imageUrls, imageUrl];
-    // plant.imageUrls = updatedImageUrls;
-    return await plant.save();
   }
 }
