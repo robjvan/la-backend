@@ -79,9 +79,7 @@ export class PlantMetricsService {
    * @param {PlantModel[]} plantRecords - Array of plant records.
    * @returns {FrequencyDto} Watering frequency metrics.
    */
-  public calculateWateringFrequency(
-    plantRecords: PlantModel[],
-  ): FrequencyDto {
+  public calculateWateringFrequency(plantRecords: PlantModel[]): FrequencyDto {
     const intervals: number[] = [];
 
     // Extract the watering interval days from each plant record
@@ -115,8 +113,8 @@ export class PlantMetricsService {
 
     // Extract the fertilizer interval days from each plant record
     for (const record of plantRecords) {
-      if (record.fertilierIntervalDays > 0) {
-        intervals.push(record.fertilierIntervalDays);
+      if (record.fertilizerIntervalDays > 0) {
+        intervals.push(record.fertilizerIntervalDays);
       }
     }
 
