@@ -155,7 +155,7 @@ export class PlantModel extends Model<PlantModel> {
     description: 'Optional fertilizing reminder interval.',
     example: 30,
   })
-  fertilierIntervalDays?: number; // Optional fertilizing reminder interval.
+  fertilizerIntervalDays?: number; // Optional fertilizing reminder interval.
 
   @Column({ type: DataType.DATE, allowNull: true })
   @ApiProperty({
