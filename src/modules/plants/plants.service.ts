@@ -90,18 +90,18 @@ export class PlantsService {
    */
   public async createNewPlantRecord(
     data: NewPlantDto,
-    image: Express.Multer.File,
+    // image: Express.Multer.File,
   ) {
     try {
       // If user attached a photo, upload to appwrite bucket
-      if (image) {
-        // Attach returned url to plant record
-        try {
-          data.imageUrl = await this.appwriteService.uploadPhoto(image);
-        } catch {
-          // Do nothing, just continue with record creation
-        }
-      }
+      // if (image) {
+      //   // Attach returned url to plant record
+      //   try {
+      //     data.imageUrl = await this.appwriteService.uploadPhoto(image);
+      //   } catch {
+      //     // Do nothing, just continue with record creation
+      //   }
+      // }
 
       const result = await this.plantsRepo.create(data);
 

@@ -31,9 +31,10 @@ export class PlantsController {
   @UseInterceptors(FileInterceptor('image'))
   public addNewPlant(
     @Body() data: NewPlantDto,
-    @UploadedFile() image: Express.Multer.File,
+    // @UploadedFile() image: Express.Multer.File,
   ) {
-    return this.plantsService.createNewPlantRecord(data, image);
+    // return this.plantsService.createNewPlantRecord(data, image);
+    return this.plantsService.createNewPlantRecord(data);
   }
 
   @Get('byuser/:userId')
