@@ -4,7 +4,7 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 export const devConfig: Sequelize = new Sequelize(
-  process.env.DB_NAME_DEV,
+  process.env.DB_NAME,
   process.env.DB_USER,
   process.env.DB_PASS,
   {
@@ -18,7 +18,7 @@ export const devConfig: Sequelize = new Sequelize(
 );
 
 export const testConfig: Sequelize = new Sequelize(
-  process.env.DB_NAME_TEST,
+  process.env.DB_NAME,
   process.env.DB_USER,
   process.env.DB_PASS,
   {
@@ -32,7 +32,7 @@ export const testConfig: Sequelize = new Sequelize(
 );
 
 export const prodConfig: Sequelize = new Sequelize(
-  process.env.DB_NAME_PROD,
+  process.env.DB_NAME,
   process.env.DB_USER,
   process.env.DB_PASS,
   {
