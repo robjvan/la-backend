@@ -10,6 +10,7 @@ import {
   WELCOME_TEMPLATE_KEY,
 } from 'src/constants';
 import * as dotenv from 'dotenv';
+import { LoggingService } from '../logging/logging.service';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -26,13 +27,15 @@ const client = new SendMailClient({
  */
 @Injectable()
 export class MailService {
+  constructor(private readonly loggingService: LoggingService) {}
   /** Logger instance scoped to MailService for tracking and recording service-level operations and errors. */
   private logger: Logger = new Logger(MailService.name);
 
   /** Handles common error logging and throwing for service methods. */
-  private handleError(error: string, errorMsg: string) {
-    this.logger.error(error, errorMsg);
-    throw new InternalServerErrorException(error, errorMsg);
+  private handleError(error: string, message: string) {
+    this.logger.error(error, message);
+    this.loggingService.error(MailService.name, error, message);
+    throw new InternalServerErrorException(error, message);
   }
 
   /**
@@ -56,7 +59,7 @@ export class MailService {
             {
               email_address: {
                 address: toAddress,
-                // Use a test email instead during dev if needed
+                //! Use a test email instead during dev if needed
                 // address: 'robjvan@gmail.com', // Used for testing
               },
             },

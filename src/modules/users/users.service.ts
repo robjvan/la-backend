@@ -23,6 +23,7 @@ import { CountryModel } from '../locations/models/country.model';
 import { MailService } from '../mail/mail.service';
 import { UserProfileModel } from '../user-profiles/models/user-profile.model';
 import { UserSubscriptionModel } from '../subscriptions/models/user-subscription.model';
+import { LoggingService } from '../logging/logging.service';
 
 @Injectable()
 export class UsersService {
@@ -36,15 +37,17 @@ export class UsersService {
     private readonly locationService: LocationsService,
     private readonly subscriptionsService: SubscriptionsService,
     private readonly mailService: MailService,
+    private readonly loggingService: LoggingService,
   ) {}
 
   /** Logger instance scoped to UsersService for tracking and recording service-level operations and errors. */
   private logger: Logger = new Logger(UsersService.name);
 
   /** Handles common error logging and throwing for service methods. */
-  private handleError(error: string, errorMsg: string) {
-    this.logger.error(error, errorMsg);
-    throw new InternalServerErrorException(error, errorMsg);
+  private handleError(error: string, message: string) {
+    this.logger.error(error, message);
+    this.loggingService.error(UsersService.name, error, message);
+    throw new InternalServerErrorException(error, message);
   }
 
   /**

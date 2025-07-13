@@ -19,6 +19,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { MailService } from '../mail/mail.service';
 import { NewPasswordDto } from './dto/new-password.dto';
 import { JwtPayload } from './models/jwt-payload.interface';
+import { LoggingService } from '../logging/logging.service';
 
 /**
  * AuthService provides authentication and authorization-related functionality,
@@ -33,14 +34,16 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly mailService: MailService,
+    private readonly loggingService: LoggingService,
   ) {}
 
   private logger: Logger = new Logger(AuthService.name);
 
   /** Handles common error logging and throwing for service methods. */
-  private handleError(error: string, errorMsg: string) {
-    this.logger.error(error, errorMsg);
-    throw new InternalServerErrorException(error, errorMsg);
+  private handleError(error: string, message: string) {
+    this.logger.error(error, message);
+    this.loggingService.error(AuthService.name, error, message);
+    throw new InternalServerErrorException(error, message);
   }
 
   /**

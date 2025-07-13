@@ -11,6 +11,7 @@ import { firstValueFrom } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
 import * as lookup from 'country-code-lookup';
 import { countryToAlpha2 } from 'country-to-iso';
+import { LoggingService } from '../logging/logging.service';
 
 @Injectable()
 export class LocationsService {
@@ -20,15 +21,17 @@ export class LocationsService {
     @Inject(COUNTRY_REPOSITORY)
     private readonly countryRepository: typeof CountryModel,
     private readonly httpService: HttpService,
+    private readonly loggingService: LoggingService,
   ) {}
 
   /** Logger instance scoped to LocationsService for tracking and recording service-level operations and errors. */
   private logger: Logger = new Logger(LocationsService.name);
 
   /** Handles common error logging and throwing for service methods. */
-  private handleError(error: string, errorMsg: string) {
-    this.logger.error(error, errorMsg);
-    throw new InternalServerErrorException(error, errorMsg);
+  private handleError(error: string, message: string) {
+    this.logger.error(error, message);
+    this.loggingService.error(LocationsService.name, error, message);
+    throw new InternalServerErrorException(error, message);
   }
 
   public async getOrCreateRecord(

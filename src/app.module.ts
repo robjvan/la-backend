@@ -9,13 +9,17 @@ import { AdminModule } from './modules/admin/admin.module';
 import { UsersModule } from './modules/users/users.module';
 import { DatabaseModule } from './modules/database/database.module';
 import { UserProfilesModule } from './modules/user-profiles/user-profiles.module';
+import { AppwriteModule } from './modules/appwrite/appwrite.module';
+import { LoggingModule } from './modules/logging/logging.module';
 
 @Module({
   imports: [
     AdminModule,
+    AppwriteModule,
     AuthModule,
     DatabaseModule,
     LocationsModule,
+    LoggingModule,
     MailModule,
     PlantsModule,
     SubscriptionsModule,
