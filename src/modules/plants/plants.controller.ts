@@ -7,15 +7,18 @@ import {
   Patch,
   Post,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { PlantsService } from './plants.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { NewPlantDto } from './dto/new-plant.dto';
+import { AuthGuard } from 'src/guards/auth.guard';
 
 @Controller('plants')
 @ApiTags('Plants')
+@UseGuards(AuthGuard)
 export class PlantsController {
   constructor(private readonly plantsService: PlantsService) {}
 
@@ -25,7 +28,12 @@ export class PlantsController {
     description: 'New plant data to be captured in the db',
     type: NewPlantDto,
   })
-  public addNewPlant(@Body() data: NewPlantDto) {
+  @UseInterceptors(FileInterceptor('image'))
+  public addNewPlant(
+    @Body() data: NewPlantDto,
+    // @UploadedFile() image: Express.Multer.File,
+  ) {
+    // return this.plantsService.createNewPlantRecord(data, image);
     return this.plantsService.createNewPlantRecord(data);
   }
 

@@ -5,9 +5,10 @@ import { LocationsModule } from '../locations/locations.module';
 import { SubscriptionsModule } from '../subscriptions/subscriptions.module';
 import { MailModule } from '../mail/mail.module';
 import { usersProviders } from './users.providers';
+import { LoggingModule } from '../logging/logging.module';
 
 @Module({
-  imports: [LocationsModule, SubscriptionsModule, MailModule],
+  imports: [LocationsModule, SubscriptionsModule, MailModule, LoggingModule],
   controllers: [UsersController],
   providers: [UsersService, ...usersProviders],
   exports: [UsersService],

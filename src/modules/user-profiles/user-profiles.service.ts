@@ -8,6 +8,7 @@ import {
 import { USER_PROFILE_REPOSITORY } from 'src/constants';
 import { UpdateProfileDto } from '../users/dto/update-profile.dto';
 import { UserProfileModel } from './models/user-profile.model';
+import { LoggingService } from '../logging/logging.service';
 
 /**
  * Service for managing user profiles.
@@ -21,6 +22,7 @@ export class UserProfilesService {
   constructor(
     @Inject(USER_PROFILE_REPOSITORY)
     private readonly userProfileRepo: typeof UserProfileModel,
+    private readonly loggingService: LoggingService,
   ) {}
 
   /** Logger instance scoped to UserProfilesService for tracking and recording service-level operations and errors. */
@@ -31,9 +33,10 @@ export class UserProfilesService {
    * @param error - The error message to log.
    * @param errorMsg - The error details.
    */
-  private handleError(error: string, errorMsg: string): void {
-    this.logger.error(error, errorMsg);
-    throw new InternalServerErrorException(error, errorMsg);
+  private handleError(error: string, message: string): void {
+    this.logger.error(error, message);
+    this.loggingService.error(UserProfilesService.name, error, message);
+    throw new InternalServerErrorException(error, message);
   }
 
   /**

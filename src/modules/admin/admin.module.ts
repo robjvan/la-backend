@@ -6,14 +6,16 @@ import { MetricsService } from './metrics.service';
 import { UserMetricsService } from './user-metrics.service';
 import { PlantMetricsService } from './plant-metrics.service';
 import { GeographicalMetricsService } from './geographics-metrics.service';
+import { UsersModule } from '../users/users.module';
+import { LoggingModule } from '../logging/logging.module';
 
 @Module({
-  imports: [],
+  imports: [UsersModule, LoggingModule],
   controllers: [AdminController],
   providers: [
+    ...adminProviders,
     AdminService,
     MetricsService,
-    ...adminProviders,
     UserMetricsService,
     PlantMetricsService,
     GeographicalMetricsService,

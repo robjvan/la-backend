@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { UserSubscriptionModel } from './models/user-subscription.model';
 import { USER_SUBSCRIPTION_REPOSITORY } from 'src/constants';
+import { LoggingService } from '../logging/logging.service';
 
 /**
  * The SubscriptionsService handles all operations related to user subscriptions.
@@ -16,6 +17,7 @@ export class SubscriptionsService {
   constructor(
     @Inject(USER_SUBSCRIPTION_REPOSITORY)
     private readonly userSubscriptionRepo: typeof UserSubscriptionModel,
+    private readonly loggingService: LoggingService,
   ) {}
 
   /** Logger instance scoped to SubscriptionsService for tracking and recording service-level operations and errors. */
@@ -24,11 +26,12 @@ export class SubscriptionsService {
   /**
    * Handles common error logging and throwing for service methods.
    * @param error - The error message to log.
-   * @param errorMsg - The error details.
+   * @param message - The error details.
    */
-  private handleError(error: string, errorMsg: string) {
-    this.logger.error(error, errorMsg);
-    throw new InternalServerErrorException(error, errorMsg);
+  private handleError(error: string, message: string) {
+    this.logger.error(error, message);
+    this.loggingService.error(SubscriptionsService.name, error, message);
+    throw new InternalServerErrorException(error, message);
   }
 
   /**

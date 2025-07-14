@@ -1,4 +1,5 @@
 import {
+  HttpStatus,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -10,7 +11,6 @@ import { USER_LOGIN_RECORD_REPOSITORY } from 'src/constants';
 import { UserLoginRecordModel } from './models/user-login-record.model';
 import { LocationsService } from '../locations/locations.service';
 import { UsersService } from '../users/users.service';
-// import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 import { JwtService } from '@nestjs/jwt';
 import { UserModel } from '../users/models/user.model';
 import * as bcrypt from 'bcrypt';
@@ -18,7 +18,13 @@ import { UserLoginDto } from './dto/user-login.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { MailService } from '../mail/mail.service';
 import { NewPasswordDto } from './dto/new-password.dto';
+import { JwtPayload } from './models/jwt-payload.interface';
+import { LoggingService } from '../logging/logging.service';
 
+/**
+ * AuthService provides authentication and authorization-related functionality,
+ * including login, password management, and token generation.
+ */
 @Injectable()
 export class AuthService {
   constructor(
@@ -27,24 +33,25 @@ export class AuthService {
     private readonly locationService: LocationsService,
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-    // private readonly subscriptionService: SubscriptionsService,
     private readonly mailService: MailService,
-    // private readonly profileService: ProfileService,
+    private readonly loggingService: LoggingService,
   ) {}
 
   private logger: Logger = new Logger(AuthService.name);
 
   /** Handles common error logging and throwing for service methods. */
-  private handleError(error: string, errorMsg: string) {
-    this.logger.error(error, errorMsg);
-    throw new InternalServerErrorException(error, errorMsg);
+  private handleError(error: string, message: string) {
+    this.logger.error(error, message);
+    this.loggingService.error(AuthService.name, error, message);
+    throw new InternalServerErrorException(error, message);
   }
 
-  /** Validates a user based on the provided username and password.
+  /**
+   * Validates a user's credentials.
    *
-   * @param {string} username - The username of the user.
-   * @param {string} pass - The user's password.
-   * @returns {Promise<any>} A promise that resolves to the validated user or null if validation fails.
+   * @param username - The user's username.
+   * @param pass - The raw password provided.
+   * @returns The user model if valid, otherwise null.
    */
   public async validateUser(
     username: string,
@@ -62,13 +69,13 @@ export class AuthService {
     }
   }
 
-  /** Compares the entered password with the hashed password stored in the database.
+  /**
+   * Compares a raw password to a hashed one.
    *
-   * @param {string} enteredPassword - The entered password.
-   * @param {string} dbPassword - The hashed password stored in the database.
-   * @returns {Promise<boolean>} A promise that resolves to true if passwords match, false otherwise.
-   */
-  private async comparePassword(
+   * @param enteredPassword - The password from the login request.
+   * @param dbPassword - The hashed password from the database.
+   * @returns True if passwords match, false otherwise.
+   */ private async comparePassword(
     enteredPassword: string,
     dbPassword: string,
   ): Promise<boolean> {
@@ -76,15 +83,23 @@ export class AuthService {
     return match;
   }
 
-  /** Generates a JWT token for the given user.
+  /**
+   * Generates a signed JWT token for the given user payload.
    *
-   * @param {any} user - The user for whom the token will be generated.
-   * @returns {Promise<string>} A promise that resolves to the generated JWT token.
+   * @param payload - The JWT payload to encode.
+   * @returns A signed JWT token string.
    */
-  private async generateToken(user: any): Promise<string> {
+  private async generateToken(user: JwtPayload): Promise<string> {
     return await this.jwtService.signAsync(user);
   }
 
+  /**
+   * Creates a login record with IP and country information.
+   * If any errors occur, they are logged but do not interrupt the login flow.
+   *
+   * @param userId - The ID of the user logging in.
+   * @param ipAddress - The IP address from the request.
+   */
   private async createLoginRecord(userId: number, ipAddress: string) {
     try {
       // Get country name using IP address
@@ -105,22 +120,24 @@ export class AuthService {
       });
     } catch (err: any) {
       // Log but don't throw an error
-      console.log(`Failed to create user login record`, err.message);
+      this.logger.warn(`Failed to create user login record`, err.message);
     }
   }
 
-  /** Confirms the user's email by validating the provided token.
+  /**
+   * Confirms a user's email address using a token sent via email.
    *
-   * @param {string} emailToken - The token provided by the user to confirm their email.
-   * @returns {Promise<UserModel>} A promise that resolves to the updated user record indicating the result.
-   * @throws {InternalServerErrorException} If there is an error in confirming the email.
+   * @param emailToken - The token provided by the email confirmation link.
+   * @returns The updated user record.
    */
   public async confirmUserEmailByToken(emailToken: string): Promise<UserModel> {
     try {
       const userRecord =
         await this.usersService.fetchUserByEmailToken(emailToken);
 
-      return await userRecord.update({ emailConfirmed: true, active: true });
+      await userRecord.update({ emailConfirmed: true, active: true });
+
+      return await this.usersService.fetchUserById(userRecord.id);
     } catch (e: any) {
       this.logger.error(
         `Could not confirm user email using token: ${e.message}`,
@@ -131,10 +148,12 @@ export class AuthService {
     }
   }
 
-  /** Logs in a user by generating and returning a JWT.
+  /**
+   * Logs in a user and returns a JWT token along with metadata.
    *
-   * @param {any} data - The user login credentials to process.
-   * @returns {Promise<any>} A promise that resolves to the user and token.
+   * @param data - Login credentials (username & password).
+   * @param ip - IP address from the request, used for location tracking.
+   * @returns Auth response with user data and JWT token.
    */
   public async login(data: UserLoginDto, ip: string): Promise<any> {
     try {
@@ -144,7 +163,7 @@ export class AuthService {
       );
 
       if (!userRecordPartial) {
-        return new UnauthorizedException('Provided credentials are incorrect');
+        throw new UnauthorizedException('Provided credentials are incorrect');
       } else {
         // Fetch user record
         const userRecord = await this.usersService.fetchUserByUsername(
@@ -153,7 +172,8 @@ export class AuthService {
 
         const accessToken = await this.generateToken({
           username: data.username,
-          password: data.password,
+          userId: userRecord.id,
+          roleId: userRecord.roleId,
         });
 
         if (accessToken) {
@@ -170,10 +190,7 @@ export class AuthService {
             roleId: userRecord.roleId,
             userId: userRecord.id,
             lastLogin,
-            accessToken: await this.generateToken({
-              username: data.username,
-              password: data.password,
-            }),
+            accessToken,
             newsletter: userRecord.newsletter,
           };
         }
@@ -186,6 +203,11 @@ export class AuthService {
     }
   }
 
+  /**
+   * Retrieves all login records in the system.
+   *
+   * @returns List of all user login records.
+   */
   public async findAllLoginRecords(): Promise<UserLoginRecordModel[]> {
     try {
       return await this.userLoginRepository.findAll();
@@ -194,13 +216,13 @@ export class AuthService {
     }
   }
 
-  // # Forgot Password workflow:
-  // 1. User submits their email as a "forgot password" request from Flutter app, a dialog tells them to check email.
-  // 2. Email is sent to the user with a link containing new emailToken.
-  // 3. User submits this token using the Forgot Password page along with a new password.
-  // 4. If token is OK, new password is saved and user can login.
-
-  public async startForgotPassWorkflow(username: string) {
+  /**
+   * Starts the forgot-password flow by generating a reset token
+   * and emailing it to the user.
+   *
+   * @param username - The user's username or email.
+   */
+  public async startForgotPassWorkflow(username: string): Promise<HttpStatus> {
     try {
       // Attempt to fetch user record
       const userRecord = await this.usersService.fetchUserByUsername(username);
@@ -219,15 +241,28 @@ export class AuthService {
 
       // Send email message with token to the user
       await this.mailService.sendForgotPasswordEmail(username, emailToken);
+
+      return HttpStatus.OK;
     } catch (err: any) {
       this.handleError(
         `Failed to start 'forgot password' workflow for username ${username}`,
         err.message,
       );
+      return HttpStatus.INTERNAL_SERVER_ERROR;
     }
   }
 
-  public async submitNewPassword(username: string, data: NewPasswordDto) {
+  /**
+   * Submits a new password using a previously emailed token.
+   *
+   * @param username - The user's username.
+   * @param data - Contains the reset token and new password.
+   * @returns Success response on password update.
+   */
+  public async submitNewPassword(
+    username: string,
+    data: NewPasswordDto,
+  ): Promise<HttpStatus> {
     try {
       const { token, password } = data;
 
@@ -240,6 +275,10 @@ export class AuthService {
 
       if (token === userRecord.emailToken) {
         await this.usersService.updateUserById(userRecord.id, { password });
+
+        this.mailService.sendPasswordUpdatedEmail(username);
+
+        return HttpStatus.OK;
       } else {
         throw new UnauthorizedException(`Email token does not match`);
       }
@@ -248,6 +287,7 @@ export class AuthService {
         `Failed to update password for ${username}`,
         err.message,
       );
+      return HttpStatus.INTERNAL_SERVER_ERROR;
     }
   }
 }

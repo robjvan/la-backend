@@ -14,6 +14,7 @@ import { UserSubscriptionModel } from '../subscriptions/models/user-subscription
 import { PlantModel } from '../plants/models/plant.model';
 import { WateringRecordModel } from '../plants/models/watering-record.model';
 import { FertilizerRecordModel } from '../plants/models/fertilizer-record.model';
+import { LogRecord } from '../logging/models/log-record.model';
 
 dotenv.config();
 
@@ -26,7 +27,7 @@ export const databaseProviders = [
     provide: SEQUELIZE,
     // Factory function to create and configure Sequelize instance asynchronously
     useFactory: async () => {
-      let sequelize;
+      let sequelize: any;
 
       switch (process.env.NODE_ENV) {
         case TEST:
@@ -47,6 +48,7 @@ export const databaseProviders = [
         CityModel,
         CountryModel,
         FertilizerRecordModel,
+        LogRecord,
         PlantModel,
         UserModel,
         UserLoginRecordModel,
