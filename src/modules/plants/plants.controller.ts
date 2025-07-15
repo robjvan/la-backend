@@ -6,7 +6,7 @@ import {
   Param,
   Patch,
   Post,
-  UploadedFile,
+  // UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -15,6 +15,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { NewPlantDto } from './dto/new-plant.dto';
 import { AuthGuard } from 'src/guards/auth.guard';
+import { UpdatePlantDto } from './dto/update-plant.dto';
 
 @Controller('plants')
 @ApiTags('Plants')
@@ -54,8 +55,11 @@ export class PlantsController {
   @Patch(':id')
   @ApiOperation({ summary: 'Update a specific plant by ID' })
   @ApiParam({ name: 'id', description: 'Plant ID', type: 'number' })
-  public updatePlantById(@Param('id') id: number) {
-    return this.plantsService.updatePlantById(id);
+  public updatePlantById(
+    @Param('id') id: number,
+    @Body() data: UpdatePlantDto,
+  ) {
+    return this.plantsService.updatePlantById(id, data);
   }
 
   @Delete(':id')
@@ -65,20 +69,43 @@ export class PlantsController {
     return this.plantsService.deletePlantById(id);
   }
 
-  @Post(':id/upload-photo')
-  @ApiOperation({ summary: 'Upload a photo for a specific plant' })
-  @ApiParam({ name: 'id', description: 'Plant ID', type: 'number' })
-  // @ApiBody({
-  //   type: 'object',
-  //   // properties: {
-  //   //   file: { type: 'string', format: 'binary' },
-  //   // },
-  // })
-  @UseInterceptors(FileInterceptor('file'))
-  public addPhotoByPlantId(
-    @Param('id') id: number,
-    @UploadedFile() file: Express.Multer.File,
-  ) {
-    return this.plantsService.addPhotoByPlantId(id, file);
+  // @Post(':id/upload-photo')
+  // @ApiOperation({ summary: 'Upload a photo for a specific plant' })
+  // @ApiParam({ name: 'id', description: 'Plant ID', type: 'number' })
+  // @UseInterceptors(FileInterceptor('file'))
+  // public addPhotoByPlantId(
+  //   @Param('id') id: number,
+  //   @UploadedFile() file: Express.Multer.File,
+  // ) {
+  //   return this.plantsService.addPhotoByPlantId(id, file);
+  // }
+
+  @Post(':id/add-watering-record')
+  @ApiOperation({ summary: 'Add a watering record' })
+  @ApiParam({
+    name: 'id',
+    description: 'Plant ID to add record for',
+    type: 'number',
+  })
+  public addWateringRecordById(id: number) {
+    return this.plantsService.addWateringRecordById(id);
+  }
+
+  @Post(':id/add-fertilizing-record')
+  @ApiOperation({ summary: 'Add a fertilizing record' })
+  @ApiParam({
+    name: 'id',
+    description: 'Plant ID to add record for',
+    type: 'number',
+  })
+  public addFertilizingRecordById(id: number) {
+    return this.plantsService.addFertilizingRecordById(id);
+  }
+
+  @Delete('/photos/:id')
+  @ApiOperation({ summary: 'Delete a specific photo by ID' })
+  @ApiParam({ name: 'id', description: 'Photo ID', type: 'string' })
+  public deletePhotoById(id: string) {
+    return this.plantsService.deletePhotoById(id);
   }
 }
