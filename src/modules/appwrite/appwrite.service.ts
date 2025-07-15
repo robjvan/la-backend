@@ -53,11 +53,12 @@ export class AppwriteService {
     }
   }
 
-  public async deletePhoto(): Promise<any> {
+  public async deletePhoto(fileId: string): Promise<any> {
     try {
-      console.log();
-      // TODO(RV): Add logic
-      return null;
+      return await this.storage.deleteFile(
+        `${process.env.APPWRITE_BUCKET_ID}`,
+        fileId,
+      );
     } catch (err: any) {
       this.handleError(
         `Failed to delete photo from Appwrite bucket`,
