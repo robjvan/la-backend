@@ -9,17 +9,26 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiOperation, ApiParam, ApiBody, ApiTags } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiParam,
+  ApiBody,
+  ApiTags,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { AuthGuard } from 'src/guards/auth.guard';
+import { AdminGuard } from 'src/guards/admin.guard';
 
 @Controller('users')
 @ApiTags('Users')
 @UseGuards(AuthGuard)
+@ApiBearerAuth('access-token')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
   @ApiOperation({ summary: 'Fetch all users' })
+  @UseGuards(AdminGuard)
   public fetchAllUsers() {
     return this.usersService.fetchAllUsers();
   }

@@ -34,7 +34,7 @@ export class AppwriteService {
 
   /**
    * Adds a new image to a plant record and saves the updated record to the database.
-   * @param file - The image file to upload.
+   * @param {Express.Multer.File} file - The image file to upload.
    * @returns The URL of the uploaded image.
    */
   public async uploadPhoto(file: Express.Multer.File): Promise<string> {
@@ -53,6 +53,11 @@ export class AppwriteService {
     }
   }
 
+  /**
+   * Deletes a photo record with the given ID.
+   * @param {string} fileId - The ID of the photo to be deleted.
+   * @returns The result of the deletion action.
+   */
   public async deletePhoto(fileId: string): Promise<any> {
     try {
       return await this.storage.deleteFile(
@@ -62,19 +67,6 @@ export class AppwriteService {
     } catch (err: any) {
       this.handleError(
         `Failed to delete photo from Appwrite bucket`,
-        err.message,
-      );
-    }
-  }
-
-  public async fetchPhoto(): Promise<Express.Multer.File> {
-    try {
-      console.log();
-      // TODO(RV): Add logic
-      return null;
-    } catch (err: any) {
-      this.handleError(
-        `Failed to fetch photo from Appwrite bucket`,
         err.message,
       );
     }

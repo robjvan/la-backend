@@ -38,8 +38,8 @@ export class PlantsService {
 
   /**
    * Handles common error logging and throwing for service methods.
-   * @param error - The error message to log.
-   * @param errorMsg - The error details.
+   * @param {string} error - The error message to log.
+   * @param {string} message - The error details.
    */
   private handleError(error: string, message: string) {
     this.logger.error(error, message);
@@ -47,7 +47,11 @@ export class PlantsService {
     throw new InternalServerErrorException(error, message);
   }
 
-  public async fetchAllPlants() {
+  /**
+   * Fetches all plant records in the DB.
+   * @returns {Promise<PlantModel[]>} A Promise resolving to an array of PlantModel objects.
+   */
+  async fetchAllPlants(): Promise<PlantModel[]> {
     try {
       return await this.plantsRepo.findAll();
     } catch (err: any) {
@@ -57,10 +61,10 @@ export class PlantsService {
 
   /**
    * Fetches all plant records associated with a specific user ID.
-   * @param userId - The ID of the user.
-   * @returns An array of PlantModel objects.
+   * @param {number} userId - The ID of the user.
+   * @returns {Promise<PlantModel[]>} A Promise resolving to an array of PlantModel objects.
    */
-  public async fetchPlantsByUserId(userId: number): Promise<PlantModel[]> {
+  async fetchPlantsByUserId(userId: number): Promise<PlantModel[]> {
     try {
       return await this.plantsRepo.findAll({ where: { userId } });
     } catch (err: any) {
@@ -73,10 +77,10 @@ export class PlantsService {
 
   /**
    * Fetches a specific plant record by its ID.
-   * @param id - The ID of the plant.
-   * @returns A PlantModel object.
+   * @param {number} id - The ID of the plant.
+   * @returns {Promise<PlantModel>} A Promise resolving to the retrieved PlantModel object.
    */
-  public async fetchPlantById(id: number): Promise<PlantModel> {
+  async fetchPlantById(id: number): Promise<PlantModel> {
     try {
       const result = await this.plantsRepo.findOne({ where: { id } });
 
@@ -97,24 +101,11 @@ export class PlantsService {
 
   /**
    * Creates a new plant record.
-   * @param data - The new plant data.
-   * @returns A new plant record.
+   * @param {NewPlantDto} data - The new plant data.
+   * @returns {Promise<PlantModel>} A Promise resolving to the newly created plant record.
    */
-  public async createNewPlantRecord(
-    data: NewPlantDto,
-    // image: Express.Multer.File,
-  ) {
+  async createNewPlantRecord(data: NewPlantDto): Promise<PlantModel> {
     try {
-      // If user attached a photo, upload to appwrite bucket
-      // if (image) {
-      //   // Attach returned url to plant record
-      //   try {
-      //     data.imageUrl = await this.appwriteService.uploadPhoto(image);
-      //   } catch {
-      //     // Do nothing, just continue with record creation
-      //   }
-      // }
-
       const result = await this.plantsRepo.create(data);
 
       if (!result) {
@@ -129,13 +120,10 @@ export class PlantsService {
 
   /**
    * Updates a specific plant record by its ID.
-   * @param id - The ID of the plant.
-   * @returns A updated plant record.
+   * @param {number} id - The ID of the plant.
+   * @returns {Promise<PlantModel>} A Promise resolving to the updated plant record.
    */
-  public async updatePlantById(
-    id: number,
-    data: UpdatePlantDto,
-  ): Promise<PlantModel> {
+  async updatePlantById(id: number, data: UpdatePlantDto): Promise<PlantModel> {
     try {
       const plantRecord = await this.fetchPlantById(id);
 
@@ -150,10 +138,10 @@ export class PlantsService {
 
   /**
    * Deletes a specific plant record by its ID.
-   * @param id - The ID of the plant.
-   * @returns An HTTP status code (200 OK).
+   * @param {number} id - The ID of the plant.
+   * @returns {HttpStatus} An HTTP status code (200 OK).
    */
-  public async deletePlantById(id: number): Promise<any> {
+  async deletePlantById(id: number): Promise<any> {
     try {
       // Fetch the plant record
       const plant = await this.plantsRepo.findByPk(id);
@@ -177,7 +165,7 @@ export class PlantsService {
   //  * @param file - The image file to upload.
   //  * @returns The URL of the uploaded image.
   //  */
-  // public async addPhotoByPlantId(id: number, image: Express.Multer.File) {
+  //  async addPhotoByPlantId(id: number, image: Express.Multer.File) {
   //   try {
   //     // Fetch the original plant record
   //     const plant = await this.plantsRepo.findByPk(id);
@@ -197,8 +185,8 @@ export class PlantsService {
   // }
 
   /**
-   * Updates the "lastWateredAt" field for the plant record and saves a watering record in the db.
-   * @param id - The ID of the plant that was watered.
+   * Updates the "lastWateredAt" field for the plant record and saves a watering record in the DB.
+   * @param {number} id - The ID of the plant that was watered.
    */
   async addWateringRecordById(id: number) {
     try {
@@ -206,10 +194,16 @@ export class PlantsService {
       const plantRecord = await this.fetchPlantById(id);
 
       // Update "lastWateredAt" field and create new wateringRecord
-      await Promise.all([
+      const [updatedRecord, wateringRecord] = await Promise.all([
         await plantRecord.update({ lastWateredAt: dayjs(Date.now()) }),
         await this.wateringRepo.create({ id }),
       ]);
+
+      if (updatedRecord && wateringRecord) {
+        return HttpStatus.OK;
+      } else {
+        return HttpStatus.INTERNAL_SERVER_ERROR;
+      }
     } catch (err: any) {
       this.handleError(
         `Failed to add watering record for plant with ${id}`,
@@ -219,19 +213,26 @@ export class PlantsService {
   }
 
   /**
-   * Updates the "lastFertilizedAt" field for the plant record and saves a fertilizing record in the db.
-   * @param id - The ID of the plant that was fertilized.
+   * Updates the "lastFertilizedAt" field for the plant record and saves a fertilizing record in the DB.
+   * @param {number} id - The ID of the plant that was fertilized.
+   * @returns {HttpStatus} - A Promise resolving to the outcome of the operation.
    */
-  async addFertilizingRecordById(id: number) {
+  async addFertilizingRecordById(id: number): Promise<HttpStatus> {
     try {
       // Fetch the plant record
       const plantRecord = await this.fetchPlantById(id);
 
       // Update "lastFertilizedAt" field and create new fertilizingRecord
-      await Promise.all([
-        await plantRecord.update({ lastFertilizedAt: dayjs(Date.now()) }),
-        await this.fertilizingRepo.create({ id }),
+      const [updatedRecord, fertilizingRecord] = await Promise.all([
+        plantRecord.update({ lastFertilizedAt: dayjs(Date.now()) }),
+        this.fertilizingRepo.create({ id }),
       ]);
+
+      if (updatedRecord && fertilizingRecord) {
+        return HttpStatus.OK;
+      } else {
+        return HttpStatus.INTERNAL_SERVER_ERROR;
+      }
     } catch (err: any) {
       this.handleError(
         `Failed to add fertilizing record for plant with id ${id}`,
@@ -240,9 +241,16 @@ export class PlantsService {
     }
   }
 
-  async deletePhotoById(id: string) {
+  /**
+   * Deletes a plant photo file with the given ID.
+   * @param {number} id - The ID of the photo to be deleted.
+   * @returns {HttpStatus} - A Promise resolving to the outcome of the operation.
+   */
+  async deletePhotoById(id: string): Promise<HttpStatus> {
     try {
-      return await this.appwriteService.deletePhoto(id);
+      await this.appwriteService.deletePhoto(id);
+
+      return HttpStatus.OK;
     } catch (err: any) {
       this.handleError(`Failed to delete photo with id ${id}`, err.message);
     }

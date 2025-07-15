@@ -12,30 +12,41 @@ import {
 } from '@nestjs/common';
 import { PlantsService } from './plants.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBody, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+} from '@nestjs/swagger';
 import { NewPlantDto } from './dto/new-plant.dto';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { UpdatePlantDto } from './dto/update-plant.dto';
+import { AdminGuard } from 'src/guards/admin.guard';
 
 @Controller('plants')
 @ApiTags('Plants')
 @UseGuards(AuthGuard)
+@ApiBearerAuth('access-token')
 export class PlantsController {
   constructor(private readonly plantsService: PlantsService) {}
 
   @Post('')
   @ApiOperation({ summary: 'Create a new plant record' })
   @ApiBody({
-    description: 'New plant data to be captured in the db',
+    description: 'New plant data to be captured in the DB',
     type: NewPlantDto,
   })
   @UseInterceptors(FileInterceptor('image'))
-  public addNewPlant(
-    @Body() data: NewPlantDto,
-    // @UploadedFile() image: Express.Multer.File,
-  ) {
-    // return this.plantsService.createNewPlantRecord(data, image);
+  public addNewPlant(@Body() data: NewPlantDto) {
     return this.plantsService.createNewPlantRecord(data);
+  }
+
+  @Get('')
+  @UseGuards(AdminGuard)
+  @ApiOperation({ summary: 'Fetch all plant records in DB' })
+  public getAllPlants() {
+    return this.plantsService.fetchAllPlants();
   }
 
   @Get('byuser/:userId')
@@ -68,17 +79,6 @@ export class PlantsController {
   public deletePlantById(@Param('id') id: number) {
     return this.plantsService.deletePlantById(id);
   }
-
-  // @Post(':id/upload-photo')
-  // @ApiOperation({ summary: 'Upload a photo for a specific plant' })
-  // @ApiParam({ name: 'id', description: 'Plant ID', type: 'number' })
-  // @UseInterceptors(FileInterceptor('file'))
-  // public addPhotoByPlantId(
-  //   @Param('id') id: number,
-  //   @UploadedFile() file: Express.Multer.File,
-  // ) {
-  //   return this.plantsService.addPhotoByPlantId(id, file);
-  // }
 
   @Post(':id/add-watering-record')
   @ApiOperation({ summary: 'Add a watering record' })
