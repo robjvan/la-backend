@@ -12,7 +12,7 @@ import {
 import { UserModel } from 'src/modules/users/models/user.model';
 import { ApiProperty } from '@nestjs/swagger';
 
-@Table
+@Table({ paranoid: true })
 export class PlantModel extends Model<PlantModel> {
   @Column({
     type: DataType.INTEGER,
