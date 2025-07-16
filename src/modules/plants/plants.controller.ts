@@ -23,6 +23,7 @@ import { NewPlantDto } from './dto/new-plant.dto';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { UpdatePlantDto } from './dto/update-plant.dto';
 import { AdminGuard } from 'src/guards/admin.guard';
+import { CreateActionRecordsDto } from './dto/create-action-records.dto';
 
 @Controller('plants')
 @UseGuards(AuthGuard)
@@ -99,8 +100,8 @@ export class PlantsController {
     type: 'number',
     required: true,
   })
-  public addWateringRecords(plantIds: number[]) {
-    return this.plantsService.addWateringRecords(plantIds);
+  public addWateringRecords(@Body() dto: CreateActionRecordsDto) {
+    return this.plantsService.addWateringRecords(dto.plantIds);
   }
 
   @Post('/fertilize/:id')
@@ -122,8 +123,8 @@ export class PlantsController {
     type: 'number',
     required: true,
   })
-  public addFertilizingRecords(plantIds: number[]) {
-    return this.plantsService.addFertilizingRecords(plantIds);
+  public addFertilizingRecords(@Body() dto: CreateActionRecordsDto) {
+    return this.plantsService.addFertilizingRecords(dto.plantIds);
   }
 
   @Delete('/photos/:id')

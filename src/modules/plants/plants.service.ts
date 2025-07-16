@@ -15,7 +15,9 @@ import { PlantModel } from './models/plant.model';
 import { NewPlantDto } from './dto/new-plant.dto';
 import { AppwriteService } from '../appwrite/appwrite.service';
 import { LoggingService } from '../logging/logging.service';
-import dayjs from 'dayjs';
+// import dayjs from 'dayjs';
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const dayjs = require('dayjs');
 import { WateringRecordModel } from './models/watering-record.model';
 import { FertilizerRecordModel } from './models/fertilizer-record.model';
 import { UpdatePlantDto } from './dto/update-plant.dto';
@@ -195,8 +197,8 @@ export class PlantsService {
 
       // Update "lastWateredAt" field and create new wateringRecord
       const [updatedRecord, wateringRecord] = await Promise.all([
-        await plantRecord.update({ lastWateredAt: dayjs(Date.now()) }),
-        await this.wateringRepo.create({ id }),
+        await plantRecord.update({ lastWateredAt: dayjs().toDate() }),
+        await this.wateringRepo.create({ plantId: id }),
       ]);
 
       if (updatedRecord && wateringRecord) {
@@ -224,8 +226,8 @@ export class PlantsService {
 
       // Update "lastFertilizedAt" field and create new fertilizingRecord
       const [updatedRecord, fertilizingRecord] = await Promise.all([
-        plantRecord.update({ lastFertilizedAt: dayjs(Date.now()) }),
-        this.fertilizingRepo.create({ id }),
+        plantRecord.update({ lastFertilizedAt: dayjs().toDate() }),
+        this.fertilizingRepo.create({ plantId: id }),
       ]);
 
       if (updatedRecord && fertilizingRecord) {
