@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
   IsArray,
   IsBoolean,
@@ -58,6 +59,7 @@ export class NewPlantDto {
   })
   @IsDate()
   @IsOptional()
+  @Type(() => Date)
   lastWateredAt?: Date;
 
   @ApiProperty({
@@ -68,6 +70,7 @@ export class NewPlantDto {
   })
   @IsDate()
   @IsOptional()
+  @Type(() => Date)
   lastFertilizedAt?: Date;
 
   @ApiProperty({
