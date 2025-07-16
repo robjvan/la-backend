@@ -25,8 +25,8 @@ import { UpdatePlantDto } from './dto/update-plant.dto';
 import { AdminGuard } from 'src/guards/admin.guard';
 
 @Controller('plants')
-@ApiTags('Plants')
 @UseGuards(AuthGuard)
+@ApiTags('Plants')
 @ApiBearerAuth('access-token')
 export class PlantsController {
   constructor(private readonly plantsService: PlantsService) {}
@@ -80,7 +80,7 @@ export class PlantsController {
     return this.plantsService.deletePlantById(id);
   }
 
-  @Post(':id/add-watering-record')
+  @Post('/water/:id')
   @ApiOperation({ summary: 'Add a watering record' })
   @ApiParam({
     name: 'id',
@@ -91,7 +91,19 @@ export class PlantsController {
     return this.plantsService.addWateringRecordById(id);
   }
 
-  @Post(':id/add-fertilizing-record')
+  @Post('/water')
+  @ApiOperation({ summary: 'Add a watering record for multiple plant IDs' })
+  @ApiParam({
+    name: 'plantIds',
+    description: 'List of plant ID to add record for',
+    type: 'number',
+    required: true,
+  })
+  public addWateringRecords(plantIds: number[]) {
+    return this.plantsService.addWateringRecords(plantIds);
+  }
+
+  @Post('/fertilize/:id')
   @ApiOperation({ summary: 'Add a fertilizing record' })
   @ApiParam({
     name: 'id',
@@ -100,6 +112,18 @@ export class PlantsController {
   })
   public addFertilizingRecordById(id: number) {
     return this.plantsService.addFertilizingRecordById(id);
+  }
+
+  @Post('/fertilize')
+  @ApiOperation({ summary: 'Add a fertilizing record for multiple plant IDs' })
+  @ApiParam({
+    name: 'plantIds',
+    description: 'List of plant ID to add record for',
+    type: 'number',
+    required: true,
+  })
+  public addFertilizingRecords(plantIds: number[]) {
+    return this.plantsService.addFertilizingRecords(plantIds);
   }
 
   @Delete('/photos/:id')
