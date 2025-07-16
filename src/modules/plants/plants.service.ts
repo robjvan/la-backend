@@ -258,7 +258,7 @@ export class PlantsService {
 
   async addWateringRecords(plantIds: number[]): Promise<HttpStatus> {
     try {
-      plantIds.map(async (plantId: number) => {
+      plantIds.forEach(async (plantId: number) => {
         await this.addWateringRecordById(plantId);
       });
       return HttpStatus.OK;
@@ -269,7 +269,7 @@ export class PlantsService {
 
   async addFertilizingRecords(plantIds: number[]): Promise<HttpStatus> {
     try {
-      plantIds.map(async (plantId: number) => {
+      plantIds.forEach(async (plantId: number) => {
         await this.addFertilizingRecordById(plantId);
       });
       return HttpStatus.OK;
