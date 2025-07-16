@@ -255,4 +255,26 @@ export class PlantsService {
       this.handleError(`Failed to delete photo with id ${id}`, err.message);
     }
   }
+
+  async addWateringRecords(plantIds: number[]): Promise<HttpStatus> {
+    try {
+      plantIds.map(async (plantId: number) => {
+        await this.addWateringRecordById(plantId);
+      });
+      return HttpStatus.OK;
+    } catch (err: any) {
+      this.handleError(`Failed to process watering records`, err.message);
+    }
+  }
+
+  async addFertilizingRecords(plantIds: number[]): Promise<HttpStatus> {
+    try {
+      plantIds.map(async (plantId: number) => {
+        await this.addFertilizingRecordById(plantId);
+      });
+      return HttpStatus.OK;
+    } catch (err: any) {
+      this.handleError(`Failed to process watering records`, err.message);
+    }
+  }
 }
