@@ -24,6 +24,7 @@ import { AuthGuard } from 'src/guards/auth.guard';
 import { UpdatePlantDto } from './dto/update-plant.dto';
 import { AdminGuard } from 'src/guards/admin.guard';
 import { CreateActionRecordsDto } from './dto/create-action-records.dto';
+import { PlantActionType } from './models/plant-action-type.enum';
 
 @Controller('plants')
 @UseGuards(AuthGuard)
@@ -101,7 +102,10 @@ export class PlantsController {
     required: true,
   })
   public addWateringRecords(@Body() dto: CreateActionRecordsDto) {
-    return this.plantsService.addWateringRecords(dto.plantIds);
+    return this.plantsService.addPlantRecords(
+      PlantActionType.water,
+      dto.plantIds,
+    );
   }
 
   @Post('/fertilize/:id')
@@ -124,7 +128,10 @@ export class PlantsController {
     required: true,
   })
   public addFertilizingRecords(@Body() dto: CreateActionRecordsDto) {
-    return this.plantsService.addFertilizingRecords(dto.plantIds);
+    return this.plantsService.addPlantRecords(
+      PlantActionType.fertilize,
+      dto.plantIds,
+    );
   }
 
   @Delete('/photos/:id')
@@ -132,5 +139,15 @@ export class PlantsController {
   @ApiParam({ name: 'id', description: 'Photo ID', type: 'string' })
   public deletePhotoById(id: string) {
     return this.plantsService.deletePhotoById(id);
+  }
+
+  @Patch('/water/toggle-reminders/:id')
+  public toggleWateringReminders(@Param('id') id: number) {
+    return this.plantsService.toggleReminders(id, PlantActionType.water);
+  }
+
+  @Patch('/fertilize/toggle-reminders/:id')
+  public toggleFertilizerReminders(@Param('id') id: number) {
+    return this.plantsService.toggleReminders(id, PlantActionType.fertilize);
   }
 }
