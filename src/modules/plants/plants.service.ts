@@ -21,6 +21,7 @@ const dayjs = require('dayjs');
 import { WateringRecordModel } from './models/watering-record.model';
 import { FertilizerRecordModel } from './models/fertilizer-record.model';
 import { UpdatePlantDto } from './dto/update-plant.dto';
+import { PlantActionType } from './models/plant-action-type.enum';
 
 @Injectable()
 export class PlantsService {
@@ -258,25 +259,51 @@ export class PlantsService {
     }
   }
 
-  async addWateringRecords(plantIds: number[]): Promise<HttpStatus> {
+  async addPlantRecords(
+    action: PlantActionType,
+    plantIds: number[],
+  ): Promise<HttpStatus> {
     try {
-      plantIds.forEach(async (plantId: number) => {
-        await this.addWateringRecordById(plantId);
+      const tasks = plantIds.map(async (plantId) => {
+        switch (action) {
+          // case 'water':
+          case PlantActionType.water:
+            return this.addWateringRecordById(plantId);
+          // case 'fertilize':
+          case PlantActionType.fertilize:
+            return this.addFertilizingRecordById(plantId);
+        }
       });
+
+      await Promise.all(tasks);
       return HttpStatus.OK;
     } catch (err: any) {
-      this.handleError(`Failed to process watering records`, err.message);
+      this.handleError(`Failed to process ${action} records`, err.message);
     }
   }
 
-  async addFertilizingRecords(plantIds: number[]): Promise<HttpStatus> {
+  async toggleReminders(id: number, type: PlantActionType) {
     try {
-      plantIds.forEach(async (plantId: number) => {
-        await this.addFertilizingRecordById(plantId);
-      });
-      return HttpStatus.OK;
+      // Fetch the plant record
+      const plantRecord: PlantModel = await this.fetchPlantById(id);
+
+      switch (type) {
+        case PlantActionType.water:
+          return await plantRecord.update({
+            reminderEnabled: !plantRecord.reminderEnabled,
+          });
+        case PlantActionType.fertilize:
+          return await plantRecord.update({
+            fertilizerReminderEnabled: !plantRecord.fertilizerReminderEnabled,
+          });
+      }
     } catch (err: any) {
-      this.handleError(`Failed to process watering records`, err.message);
+      this.handleError(
+        `Failed to toggle ${type} reminders for plant with id ${id}`,
+        err.message,
+      );
     }
   }
 }
+
+// export type PlantActionType = 'water' | 'fertilize';
